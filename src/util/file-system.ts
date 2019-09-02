@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as flatten from 'flattenjs';
+import { arrayToString } from '../util/array-as-string';
 
 export type FileType = 'key-based' | 'natural' | 'auto';
 
@@ -36,7 +37,7 @@ export const loadTranslations = (
         type,
         content:
           type === 'key-based'
-            ? flatten.convert(require(path.resolve(directory, f)))
+            ? flatten.convert(arrayToString(require(path.resolve(directory, f))))
             : require(path.resolve(directory, f)),
       };
     });

@@ -8,6 +8,7 @@ import { omit } from 'lodash';
 import * as path from 'path';
 
 import { serviceMap } from './services';
+import { stringToArray } from './util/array-as-string';
 import {
   loadTranslations,
   getAvailableLanguages,
@@ -264,14 +265,11 @@ const translate = async (
       const templateStrings = Object.keys(templateFile.content);
       const stringsToTranslate = templateStrings
         .filter(key => !existingKeys.includes(key))
-        .map((key) => {
-          let value = key;
-          if (templateFile.type === 'key-based') {
-            value = templateFile.content[key];
-            value = Array.isArray(value) ? value.join(' ') : value;
-          }
-          return { key, value };
-        });
+        .map(key => ({
+          key,
+          value:
+            templateFile.type === 'key-based' ? templateFile.content[key] : key,
+        }));
 
       const unusedStrings = existingKeys.filter(
         key => !templateStrings.includes(key),
@@ -301,7 +299,7 @@ const translate = async (
           path.resolve(workingDir, language, templateFile.name),
           JSON.stringify(
             templateFile.type === 'key-based'
-              ? flatten.undo(translatedFile)
+              ? flatten.undo(stringToArray(translatedFile))
               : translatedFile,
             null,
             2,
